@@ -1,0 +1,5 @@
+test_module2
+==========
+
+.. automodule:: test_module2
+   :members:
