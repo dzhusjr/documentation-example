@@ -1,0 +1,40 @@
+trigger:
+- main  # Change this to your default branch name
+
+pr:
+- main  # Change this to your default branch name
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+jobs:
+- job: Docs
+  steps:
+  - checkout: self
+
+  - script: |
+      python -m pip install --upgrade pip
+      pip install sphinx sphinx_rtd_theme
+    displayName: 'Install dependencies'
+    continueOnError: false
+
+  - script: |
+      rm -rf _build
+    displayName: 'Remove old build'
+    continueOnError: false
+
+  - script: |
+      sphinx-build doc _build
+    displayName: 'Sphinx build'
+    continueOnError: false
+
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+      addToPath: true
+
+  - script: |
+      pip install git+https://github.com/peaceiris/actions-gh-pages.git
+      gh-pages -d _build -b gh-pages
+    displayName: 'Deploy'
+    condition: and(succeeded(), eq(variables['Build.Reason'], 'Schedule'))
